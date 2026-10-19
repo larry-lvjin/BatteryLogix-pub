@@ -1,0 +1,74 @@
+<Window x:Class="BatteryLogix.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="BatteryLogix - 充放电LOG 批量转 Excel" Width="1120" Height="700"
+        MinWidth="920" MinHeight="620" WindowStartupLocation="CenterScreen" WindowStyle="SingleBorderWindow" ResizeMode="CanResize"
+        Background="#0B0F17" Foreground="#F1F5F9" FontFamily="Microsoft YaHei UI">
+    <Window.Resources>
+        <SolidColorBrush x:Key="CardBrush" Color="#161B25"/>
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#2B3343"/>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBrush}"/><Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="12"/><Setter Property="Padding" Value="24"/>
+        </Style>
+        <Style x:Key="Title" TargetType="TextBlock"><Setter Property="FontSize" Value="19"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="#F8FAFC"/></Style>
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="White"/><Setter Property="FontSize" Value="15"/><Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/><Setter Property="Cursor" Value="Hand"/><Setter Property="Padding" Value="20,0"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="Root" Background="{TemplateBinding Background}" CornerRadius="8"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Root" Property="Opacity" Value="0.86"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="Root" Property="Opacity" Value="0.7"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter TargetName="Root" Property="Opacity" Value="0.4"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+        </Style>
+        <Style TargetType="ProgressBar">
+            <Setter Property="Height" Value="12"/><Setter Property="Foreground" Value="#3B82F6"/><Setter Property="Background" Value="#090D14"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ProgressBar"><Grid><Border Background="{TemplateBinding Background}" CornerRadius="6"/><Border x:Name="PART_Track" CornerRadius="6"><Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" CornerRadius="6"/></Border></Grid></ControlTemplate></Setter.Value></Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions><RowDefinition Height="0"/><RowDefinition Height="*"/><RowDefinition Height="42"/></Grid.RowDefinitions>
+
+        <Grid Grid.Row="1" Margin="24">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="18"/><RowDefinition Height="Auto"/><RowDefinition Height="18"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+            <Border Style="{StaticResource Card}">
+                <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="18"/><RowDefinition Height="52"/></Grid.RowDefinitions>
+                    <TextBlock Text="文件夹与操作" Style="{StaticResource Title}"/>
+                    <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="150"/><ColumnDefinition Width="16"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>
+                        <Border Background="#090D14" BorderBrush="#76A9E6" BorderThickness="1" CornerRadius="5" Padding="16,0">
+                            <TextBlock Text="{Binding FolderPath, Mode=OneWay}" VerticalAlignment="Center" FontSize="14" Foreground="#E2E8F0" TextTrimming="CharacterEllipsis"/>
+                        </Border>
+                        <Button Grid.Column="1" Margin="16,0,0,0" Content="▣  选择文件夹" Command="{Binding SelectFolderCommand, Mode=OneWay}" Background="#3687EB"/>
+                        <Button Grid.Column="3" Content="▶  开始转换" Command="{Binding ConvertCommand, Mode=OneWay}" Background="#16A05D"/>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="1.25*"/><ColumnDefinition Width="18"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                <Border Style="{StaticResource Card}"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="20"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <TextBlock Text="提取规则" Style="{StaticResource Title}"/>
+                    <UniformGrid Grid.Row="2" Columns="3">
+                        <StackPanel><TextBlock Text="bat info voltage" Foreground="#60A5FA" FontSize="14"/><TextBlock Text="电压" Foreground="#94A3B8" Margin="0,5,0,0"/></StackPanel>
+                        <StackPanel><TextBlock Text="percent / g_bat_info" Foreground="#A78BFA" FontSize="14"/><TextBlock Text="电量1 / 电量2" Foreground="#94A3B8" Margin="0,5,0,0"/></StackPanel>
+                        <StackPanel><TextBlock Text="current / temp_info" Foreground="#34D399" FontSize="14"/><TextBlock Text="电流 / 温度" Foreground="#94A3B8" Margin="0,5,0,0"/></StackPanel>
+                    </UniformGrid>
+                </Grid></Border>
+                <Border Grid.Column="2" Style="{StaticResource Card}"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="20"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <TextBlock Text="扫描统计" Style="{StaticResource Title}"/>
+                    <UniformGrid Grid.Row="2" Columns="3">
+                        <StackPanel><TextBlock Text="LOG 文件" Foreground="#94A3B8"/><TextBlock Text="{Binding LogCount, Mode=OneWay}" Foreground="#22C55E" FontSize="28" FontWeight="Bold"/></StackPanel>
+                        <StackPanel><TextBlock Text="数据记录" Foreground="#94A3B8"/><TextBlock Text="{Binding RecordCount, Mode=OneWay}" Foreground="#F59E0B" FontSize="28" FontWeight="Bold"/></StackPanel>
+                        <StackPanel><TextBlock Text="失败" Foreground="#94A3B8"/><TextBlock Text="{Binding FailedCount, Mode=OneWay}" Foreground="#EF4444" FontSize="28" FontWeight="Bold"/></StackPanel>
+                    </UniformGrid>
+                </Grid></Border>
+            </Grid>
+
+            <Border Grid.Row="4" Style="{StaticResource Card}"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="24"/><RowDefinition Height="Auto"/><RowDefinition Height="18"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <Grid><TextBlock Text="处理进度" Style="{StaticResource Title}"/><TextBlock Text="{Binding ProgressText, Mode=OneWay}" HorizontalAlignment="Right" Foreground="#93C5FD" FontSize="15"/></Grid>
+                <ProgressBar Grid.Row="2" Minimum="0" Maximum="100" Value="{Binding Progress, Mode=OneWay}"/>
+                <TextBlock Grid.Row="4" Text="{Binding Status, Mode=OneWay}" Foreground="#94A3B8" FontSize="14" TextWrapping="Wrap"/>
+            </Grid></Border>
+        </Grid>
+
+        <Border Grid.Row="2" Background="#090D14" BorderBrush="#252C39" BorderThickness="0,1,0,0">
+            <TextBlock Text="{Binding FooterStatus, Mode=OneWay}" Margin="24,0" VerticalAlignment="Center" Foreground="#A5C8F3" FontSize="13"/>
+        </Border>
+    </Grid>
+</Window>
